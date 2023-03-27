@@ -23,24 +23,16 @@ We also elicit speakers' self-rated masculinity-femininty levels useing the foll
 
 ## Data
 
-- Data Wrangling
-    - [Process JSON](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/data_analysis/ProcessJSON.md)
-- Text Analysis
-    - [Intro to `stringr`](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/RUG_stringr.md)
-    - [Intro to Regular Expression](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/RUG_RgularExpr.md)
-    - [Corpus, Document Term Matrix, TF-IDF](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/data_analysis/Corpus_DTM_TFIDF.R)
-    - [Topic Modeling](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/data_analysis/topicmodel.R)
-- Statistical Analysis
-    - [Hypothesis testing](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/data_analysis/HypothesisTest.R)
-- R Markdown
-    - [Intro to R Markdown](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/Intro_RMarkdown.md)
-- R Shiny
-    - [Intro to R Shiny](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/r_shiny/intro_shiny.md)
-        - [R Shiny Scripts Folder](https://github.com/YuxiaoLuo/RUG-RUserGroup/tree/main/r_shiny)
-- Other Topics
-    - [Intro to Geocoding in R ](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/other_topics/Tidygeocoder.md)
-    - [Compare Floats in R](https://github.com/YuxiaoLuo/RUG-RUserGroup/blob/main/other_topics/comparing_float.md)
+### Vowels and fricatives
+- txt file that ONLY has measurements averaged across items
+    - [grand average data](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gender_grand_ave.txt)
+- txt file that displays all the measurements for each item
+    - [vowel data](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gd_vowels_recode.txt)
+    - [fricative data](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gd_fricatives_recode.txt)
 
-## Summer Meetings
+## descriptive statistical analysis
+    - [Analysis on questionnaires, vowels, and fricativs](https://rpubs.com/Chen_Z_0913/1020903)
 
-- [Summer Meetings 2022](https://github.com/YuxiaoLuo/RUG-RUserGroup/tree/main/summer_meeting)
+## f0 error detection (ongoing)
+
+- [f0 error ](https://github.com/Chenlittlecrab/F0-error-detection)
