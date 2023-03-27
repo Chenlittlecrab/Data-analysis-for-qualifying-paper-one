@@ -31,7 +31,7 @@ We also elicit speakers' self-rated masculinity-femininty levels useing the foll
     - [fricative data](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gd_fricatives_recode.txt)
 
 ## descriptive statistical analysis
-    - [Analysis on questionnaires, vowels, and fricativs](- [Analysis on questionnaires, vowels, and fricativs](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/descriptive_stats.Rmd)
+    - [Analysis on questionnaires, vowels, and fricativs](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/descriptive_stats.Rmd)
 
 ## f0 error detection (ongoing)
 
