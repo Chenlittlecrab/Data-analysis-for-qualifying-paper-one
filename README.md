@@ -21,6 +21,7 @@ We also elicit speakers' self-rated masculinity-femininty levels useing the foll
 - Traditional Masculinity-Femininity Scale (TMF)
 - The larger the scores, the more femininine speakers rate themselves to be
 
+
 ## Data
 
 ### Vowels and fricatives
@@ -31,7 +32,10 @@ We also elicit speakers' self-rated masculinity-femininty levels useing the foll
     - [fricative data](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gd_fricatives_recode.txt)
 
 ## descriptive statistical analysis
-    - [Analysis on questionnaires, vowels, and fricativs](https://rpubs.com/Chen_Z_0913/1020903)
+- R markdown file
+    -[Analysis file](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/descriptive_stats.Rmd)
+- HTML link pushed to Rpubs
+    -[HTML link](https://rpubs.com/Chen_Z_0913/1020903)
 
 ## f0 error detection (ongoing)
 
