@@ -1,0 +1,491 @@
+---
+title: "Descriptive stats: vowels and fricatives"
+output: html_document
+date: '2022-03-27'
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = F,
+                      message = F)
+```
+
+## data loading
+
+```{r loaddata}
+# Packages
+library(tidyverse)
+library(Hmisc)
+library(DescTools)
+library(stats)
+library(tibble)
+library(ggpubr)
+
+# Load data as tibble
+# Grand average data:
+# For analyzing questionnaires descriptive stats
+# And correlation matrix
+data_ave = read_delim("gender_grand_ave.txt", delim = '\t')
+# randomly show 4 rows in the df
+sample_n(data_ave, 4)
+
+# count the number of men and women
+# it is for checking whether the coding for men and women are correty
+data_ave %>% count(data_ave$sex)
+
+# Vowel and fricative df
+# For box plot series
+# that explores effects of linguistic factors
+
+# vowel
+df_v = read_delim("gd_vowels_recode.txt", delim = '\t')
+head(df_v)
+# Delete unncessary columns
+df_v <- select(df_v, -c(AQ1:BAP_rigid))
+
+# Fricative
+df_f = read_delim("gd_fricatives_recode.txt", delim = '\t')
+head(df_f)
+
+# Also delete the unnecessary columns
+df_f <- select(df_f, -c(AQ1:BAP_rigid))
+
+```
+
+## Preliminary analysis on questionnaires
+
+Use data averaged across items for descriptive stats analysis on the questionnaires and the acoustic analysis.
+
+- Descriptive stats of questionnaires
+
+```{r averageDF, include = TRUE, warning = FALSE}
+head(data_ave)
+# change the head name of GEPAQ_F column
+data_ave <- rename(data_ave, EPAQ_F = GEPAQ_F)
+data_ave
+
+#descriptive stats for questionnaires
+#Table 1
+data_ave %>% select(speaker, sex, TMF, EPAQ_F) %>% 
+  gather(questionnaire, scores, TMF:EPAQ_F) %>%
+  group_by(questionnaire, sex) %>% 
+  summarise(M = mean(scores), SD = sd(scores), 
+            MIN = min(scores), MAX = max(scores)) %>% 
+  t()
+
+```
+
+- Use t-test to examine whether male and female ratings on their femininity-masculinity levels differ significantly from each other
+
+``` {r}
+# t-test for the two questionnaires
+
+t.test(TMF ~ sex, data = data_ave)
+
+t.test(EPAQ_F ~ sex, data = data_ave)
+
+```
+
+
+- box plots and regression lines of the two questionnaires
+
+```{r plotsofquestionnaires, include = TRUE, warning = FALSE}
+# box plots
+# require ggpubr library
+# for showing the t-test results in the box plots
+
+EPAQ_plot <- 
+  ggplot(data_ave, aes(x = sex, y = EPAQ_F, color = sex)) +
+  geom_boxplot()+
+  stat_compare_means(
+    method = "t.test",
+    aes(label = ..p.signif..), 
+    label.x = 1.5, #specify position of significant marking
+    label.y = 40) +
+  theme_classic()+
+  labs(y = "EPAQ-F+",
+       x = "sex") + 
+  scale_x_discrete(labels=c("f" = "female", 
+                            "m" = "male"))+
+  theme(legend.position = "none") #remove legend
+
+TMF_plot <- ggplot(data_ave, aes(x = sex, y = TMF)) +
+  geom_boxplot(aes(color=sex))+
+  stat_compare_means(
+    method = "t.test", 
+    aes(label = ..p.signif..),
+    label.x = 1.5, 
+    label.y = 40)+
+  theme_classic() +
+  labs(y = "TMF",
+       x = "sex") + 
+  scale_x_discrete(labels=c("f" = "female", 
+                            "m" = "male"))+
+  theme(legend.position = "none") 
+
+##plot the regression line for two questionnaires with R square and p value
+reg_plot <- ggplot(data_ave, aes(x = TMF, y = EPAQ_F, color = sex)) +
+  geom_point() + # scatter plot
+  geom_smooth(method = "lm", # add a linear regression line
+              formula = y ~ x, # the formular for the linear regression
+              se = TRUE) + # add confidence interval 
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+           label.x = 3, 
+           label.y.npc = c(0.2, 0.2), #adjust the label in y axis
+           size = 4)+
+  theme_classic() +
+  labs(y = "EPAQ-F+",
+       x = "TMF") + 
+  theme(legend.position = "none")
+
+#arrange three plots
+ggarrange(reg_plot,
+          EPAQ_plot,
+          TMF_plot,
+          ncol = 3, 
+          nrow = 1,
+          widths = c(2.5, 1.5, 1.5)) #adjust the size of each coloumn
+
+```
+
+
+# Box plots of fricative and vowel data
+
+## fricatives
+- Explore the effect of prosodic positions and syllable positions on the CoG values of /s/
+
+```{r}
+#code for figure 3
+#refinement includes:
+#changing the color for the group
+#theme change into classic
+
+#seperate the data into onset data and coda data
+#seperate the data into onset data and coda data
+data_onset = df_f[df_f$syllable_position=="a_onset",] #don't forget the , in the end!!!
+data_coda = df_f[df_f$syllable_position=="b_coda",]
+
+#box plot for cog_onset value for phrasal position and target filler order
+onset_plot <- ggplot(data_onset, aes(x = phrase_position, 
+                                     y = cog,
+                                     color=filler_target_order)) +
+  geom_boxplot() +  
+  scale_color_manual(breaks = c("a_target_filler", 
+                                "b_filler_target"),
+                     labels = c("a_target_filler" = "target filler",
+                                "b_filler_target" = "filler target"),
+                     values= c("coral", "forestgreen"))+
+  labs(title = "CoG of onset /s/",
+       x = "Phrase position", 
+       y = "CoG (Hz)",
+       color  = "utterance positions")+
+  scale_x_discrete(labels=c("a_initial" = "initial", 
+                            "b_final" = "final"))+
+  scale_y_continuous(limit  = c(3000, 11000),
+                     labels = scales::comma_format()
+                     ) +
+  theme_classic()+
+  theme(plot.title = element_text(face = "bold", 
+                                  size = (12),
+                                  hjust = 0.5), #center the plot title
+        axis.title = element_text(size = (9)),
+        legend.title = element_text(size = (10)))
+
+#box plot for cog_coda value for phrasal position and target filler order
+coda_plot <- ggplot(data_coda, aes(x = phrase_position, 
+                                     y = cog,
+                                     color=filler_target_order)) +
+  geom_boxplot() +  
+  #change the legend content
+  scale_color_manual(breaks = c("a_target_filler", 
+                                "b_filler_target"),
+                     labels = c("a_target_filler" = "target filler",
+                                "b_filler_target" = "filler target"),
+                     values= c("coral", "forestgreen"))+
+  labs(title = "CoG of coda /s/",
+       x = "Phrase position", 
+       y = "CoG (Hz)",
+       color  = "utterance positions")+
+  scale_x_discrete(labels=c("a_initial" = "initial", 
+                            "b_final" = "final"))+
+  scale_y_continuous(limit  = c(3000, 11000),
+                     labels = scales::comma_format()
+  ) +
+  theme_classic()+
+  theme(plot.title = element_text(face = "bold", 
+                                  size = (12),
+                                  hjust = 0.5), #center the plot title
+        axis.title = element_text(size = (9)),
+        legend.title = element_text(size = (10)))
+
+#combine thes two ggplots together
+#require library ggpubr
+ggarrange(onset_plot,coda_plot,
+          ncol = 2, nrow = 1,
+          common.legend = TRUE, legend = "bottom") #common legend
+
+
+```
+
+
+## vowels
+
+- explore the effect of prosodic positions, consonantal contexts and hyper-articulation conditions on vowel space size
+
+```{r}
+
+#updated Figure 4 boxplot for vowels
+#phrase positions for vowel data
+phrase_v_plot <- ggplot(df_v, aes(x = filler_target_order, 
+                                           y = v_space_bk,
+                                           color=phrase_position)) +
+  geom_boxplot() +  
+  #change the legend content
+  scale_color_manual(breaks = c("a_initial", 
+                                "b_final"),
+                     labels = c("a_initial" = "initial",
+                                "b_final" = "final"),
+                     values= c("coral", "forestgreen"))+
+  labs(x = "Utterance position", 
+       y = "Vowel space (bark^2)",
+       color  = "Phrase positions")+
+  scale_x_discrete(labels=c("a_target_filler" = "target filler", 
+                            "b_filler_target" = "filler target"))+
+  scale_y_continuous(limit  = c(0, 35)) +
+  theme_classic()+
+  theme(axis.title = element_text(size = (9)),
+        legend.title = element_text(size = (9)),
+        legend.position = c(0.75,0.85)) #c(0,0) bottom left; c(1,1) "top right"
+
+
+#boxplot for consonant contexts
+consonant_v_plot <- ggplot(df_v, aes(x = consonants, 
+                                              y = v_space_bk,
+                                              color = consonants)) +
+  geom_boxplot() + 
+  stat_compare_means(
+    method = "t.test",
+    aes(label = ..p.signif..), label.x = 1.5, label.y = 33
+  )+ 
+  scale_color_manual(values= c("blueviolet", "dodgerblue3"))+
+  labs(x = "Consonant contexts", 
+       y = "Vowel space (bark^2)")+
+  scale_x_discrete(labels=c("bt" = "b_t", 
+                            "hd" = "h_d"))+
+  scale_y_continuous(limit  = c(0, 35)) +
+  theme_classic()+
+  theme(axis.title = element_text(size = (9)),
+        legend.position = "none") 
+
+#consonant_v_plot
+
+
+#boxplot for hyper_contexts
+hyper_v_plot <- ggplot(df_v, aes(x = hyper_context, 
+                                          y = v_space_bk,
+                                          color = hyper_context)) +
+  geom_boxplot() + 
+  stat_compare_means(
+    method = "t.test",
+    aes(label = ..p.signif..), label.x = 1.5, label.y = 33
+  )+ 
+  scale_color_manual(values= c("blueviolet", "dodgerblue3"))+
+  labs(x = "Hyperarticulation", 
+       y = "Vowel space (bark^2)")+
+  scale_x_discrete(labels=c("a_no" = "no", 
+                            "b_yes" = "yes"))+
+  scale_y_continuous(limit  = c(0, 35)) +
+  theme_classic()+
+  theme(axis.title = element_text(size = (9)),
+        legend.position = "none")
+
+# Combine the plots together
+ggarrange(phrase_v_plot,
+          consonant_v_plot,
+          hyper_v_plot,
+          ncol = 3, 
+          nrow = 1,
+          align = "hv",
+          widths = c(2, 1.5, 1.5)) #adjust the size of each coloumn
+
+```
+
+## Scatter-histogram plots of fricatives and vowels 
+
+Pearson correlation analysis on acoustic signals and two questionnaires eliciting speakers' self-rated femininity-masculinity
+
+### define the function for the plot
+
+```{r}
+
+# function for plotting scatter-histogram
+scat_hist_plot <- function(df, 
+                             x, # string for x in scatter plot
+                             y, # string for y in scatter plot
+                             xbins, # num of bins for x axis
+                             ybins, # num of bins for y axis
+                             x_title, # x-axis name
+                             y_title, # y-axis name
+                             x_limit, # x axis limits, a vector
+                             y_limit, # y axis limits, a vector
+                             x_break, # x axis breaks, a vector
+                             y_break, # y axis breaks, a vector
+                             results_position){ # position for listing R square
+  # scatter plot
+  scatter_plot <- ggplot(df, 
+                         aes_string(x = sprintf("%s", x), 
+                                    y = sprintf("%s", y),
+                                    color = sprintf("%s", "sex")) 
+                         #color = sex needed for stat_cor to list both R square
+  ) +
+    scale_x_continuous(limit  = x_limit,
+                       breaks = x_break) +
+    scale_y_continuous(limit  = y_limit,
+                       breaks = y_break) +
+    geom_point(aes(color = sex, shape = sex)) + # scatter plot
+    geom_smooth(aes(color = sex, fill = sex),
+                method = "lm", # add a linear regression line
+                formula = y ~ x, # the formular for the linear regression
+                se = TRUE # add confidence interval
+    ) +  
+    theme_classic() + 
+    stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+             label.x = results_position) + 
+    theme(legend.position = "none")+
+    labs(x= sprintf("%s", x_title),
+         y = sprintf("%s", y_title))
+  # density plot for x
+  xdensity <- ggplot(df, aes_string(x = sprintf("%s", x))) +
+    scale_x_continuous(limit  = x_limit,
+                       breaks = x_break) + 
+    geom_histogram(aes(y = ..density.., color = sex, fill = sex),
+                   alpha = 0.4,
+                   position = "identity",
+                   bins = sprintf("%d", xbins)
+    ) +
+    geom_density(aes(color = sex), size = 1)+
+    labs(x = NULL, y = NULL)+
+    theme_classic() +  
+    theme(#panel.background = element_rect(fill = "white"), no use
+          axis.text = element_blank(),
+          legend.position = "none")
+  # desity plot for y
+  ydensity<- ggplot(df, aes_string(y = sprintf("%s", y))) + 
+    scale_y_continuous(limit  = y_limit, #,
+                       #labels = scales::comma_format()
+                       breaks = y_break) + 
+    geom_histogram(aes(x = ..density.., color = sex, fill = sex),
+                   alpha = 0.4,
+                   position = "identity",
+                   bins = sprintf("%d", ybins)
+    ) + 
+    geom_density(aes(color = sex), size = 1) +
+    labs(x = NULL, y = NULL)+
+    theme_classic()+ 
+    theme(axis.text = element_blank(),
+          legend.position = "none")
+  
+  require("gridExtra")
+  output_plot <- ggarrange(xdensity, 
+                           NULL, 
+                           scatter_plot, 
+                           ydensity, 
+                           ncol = 2, nrow = 2,  
+                           align = "hv", 
+                           widths = c(4, 1.5), heights = c(1.5, 4)
+                           )
+  return(output_plot)}
+
+```
+
+- load parameters
+``` {r}
+# predefined limits of x and y axis
+# predefined breaks for histogram
+TMF_limit <- c(0, 50)
+TMF_breaks <- c(5, 10, 15, 20, 25, 30, 35, 40, 45)
+GEPAQ_breaks <- c(14, 18, 22, 26, 30, 34, 38, 42, 46)
+GEPAQ_limit <- c(10, 50)
+COG_limit <- c(4500, 11000)
+COG_breaks <- c(5000, 6000, 7000, 8000, 9000, 10000)
+vspace_limit <- c(0,30)
+vspace_breaks <- c(5, 10, 15, 20, 25)
+
+```
+
+### fricatives 
+
+```{r}
+tmf_plot_fric <- scat_hist_plot(data_ave,
+                                    x = "TMF", 
+                                    y = "COG_all",
+                                    xbins = 16,
+                                    ybins = 18,
+                                    x_title = "TMF",
+                                    y_title = "CoG (Hz)",
+                                    x_limit = TMF_limit,
+                                    y_limit = COG_limit,
+                                    x_break = TMF_breaks,
+                                    y_break = COG_breaks,
+                                    results_position = 5)
+
+geqaq_plot_fric <- scat_hist_plot(data_ave, 
+                                      x = "EPAQ_F", 
+                                      y = "COG_all",
+                                      xbins = 20,
+                                      ybins = 18,
+                                      x_title = "EPAQ-F+",
+                                      y_title = "CoG (Hz)",
+                                      x_limit = GEPAQ_limit,
+                                      y_limit = COG_limit,
+                                      x_break = GEPAQ_breaks,
+                                      y_break = COG_breaks,
+                                      results_position = 15)
+
+ggarrange(tmf_plot_fric,geqaq_plot_fric,
+          ncol = 2, nrow = 1,
+          align = "hv",
+          widths = c(1, 1),
+          heights = c(1,1))
+
+```
+
+
+### vowels
+```{r}
+
+tmf_plot_v <- scat_hist_plot(data_ave, 
+                                 x = "TMF", 
+                                 y = "v_space_bk",
+                                 xbins = 16,
+                                 ybins = 14,
+                                 x_title = "TMF",
+                                 y_title = "Vowel space (bark^2)",
+                                 x_limit = TMF_limit,
+                                 y_limit = vspace_limit,
+                                 x_break = TMF_breaks,
+                                 y_break = vspace_breaks,
+                                 results_position = 5)
+
+geqaq_plot_v <- scat_hist_plot(data_ave, 
+                                   x = "EPAQ_F", 
+                                   y = "v_space_bk",
+                                   xbins = 20,
+                                   ybins = 14,
+                                   x_title = "EPAQ-F+",
+                                   y_title = "Vowel space (bark^2)",
+                                   x_limit = GEPAQ_limit,
+                                   y_limit = vspace_limit,
+                                   x_break = GEPAQ_breaks,
+                                   y_break = vspace_breaks,
+                                   results_position = 15)
+
+ggarrange(tmf_plot_v,geqaq_plot_v,
+          ncol = 2, nrow = 1,
+          align = "hv",
+          widths = c(1, 1),
+          heights = c(1,1))
+
+```
+
