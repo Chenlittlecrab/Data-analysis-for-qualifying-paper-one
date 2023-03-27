@@ -11,7 +11,6 @@ citation('afex')$textVersion
 citation('lme4')$textVersion
 
 
-setwd("E:/CUNY/QP1/Stats/modeling/analysis_final")
 
 #load fricative table
 df_fri = read_delim('gd_fricatives_recode_cen.txt', delim='\t')
