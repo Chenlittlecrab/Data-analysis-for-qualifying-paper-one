@@ -29,13 +29,19 @@ We also elicit speakers' self-rated masculinity-femininty levels useing the foll
     - [grand average data](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gender_grand_ave.txt)
 - txt file that displays all the measurements for each item
     - [vowel data](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gd_vowels_recode.txt)
+    - [vowel data centered for linear mixed effect model](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gd_vowels_recode_cen.txt)
     - [fricative data](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gd_fricatives_recode.txt)
+    - [fricative data centered](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/gd_fricatives_recode_cen.txt)
 
 ## descriptive statistical analysis
 - R markdown file
     -[Analysis file](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/descriptive_stats.Rmd)
 - HTML link pushed to Rpubs
     -[HTML link](https://rpubs.com/Chen_Z_0913/1020903)
+    
+## Linear mixed effect model for vowels and fricatives
+- R script
+  - [LME model](https://github.com/Chenlittlecrab/Data-analysis-for-qualifying-paper-one/blob/master/mixed_effect_model_final.R)
 
 ## f0 error detection (ongoing)
 
